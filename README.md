@@ -10,7 +10,8 @@ $ git submodule update --init
 安装依赖库
 ```
 $ pip install wheel
-$ conda install ffmpeg 或者 apt install ffmpeg
+$ conda install ffmpeg 
+或者 apt install libavcodec-dev libavformat-dev libswscale-dev
 ```
 
 修改python/CMakeLists.txt文件,根据python和ffmpeg安装路径修改如下部分
@@ -22,6 +23,12 @@ find_library(AVCODEC_LIBRARY avcodec /opt/anaconda3/envs/python37/lib)
 find_library(AVFORMAT_LIBRARY avformat /opt/anaconda3/envs/python37/lib)
 find_library(AVUTIL_LIBRARY avutil /opt/anaconda3/envs/python37/lib)
 find_library(SWSCALE_LIBRARY swscale /opt/anaconda3/envs/python37/lib)
+```
+如果是python3.10以下，不能用相对路径，需要将如下部分改成绝对路径
+```
+include_directories("../streamer")
+
+pybind11_add_module( ../streamer/streamer.cpp) 
 ```
 
 安装python库
