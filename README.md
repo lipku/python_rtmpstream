@@ -4,6 +4,7 @@
 下载代码
 ```
 $ git clone https://github.com/lipku/python_rtmpstream.git
+$ cd python_rtmpstream
 $ git submodule update --init
 ```
 
