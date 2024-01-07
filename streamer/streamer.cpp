@@ -150,7 +150,7 @@ Streamer::Streamer()
     out_codec_ctx = nullptr;
     out_codec_audio_ctx = nullptr;
     rtmp_server_conn = false;
-    av_register_all();
+    //av_register_all();
     inv_stream_timebase = 30.0;
     fifo = NULL;
     network_init_ok = !avformat_network_init();
@@ -276,7 +276,7 @@ int Streamer::init(const StreamerConfig &streamer_config)
     //use selected codec
     //---------video codec---------------------------------------
     AVCodecID codec_id = AV_CODEC_ID_H264;
-    out_codec = avcodec_find_encoder(codec_id);
+    out_codec = (AVCodec *)avcodec_find_encoder(codec_id);
     if (!(out_codec)) {
         fprintf(stderr, "Could not find encoder for '%s'\n",
                 avcodec_get_name(codec_id));
@@ -303,7 +303,7 @@ int Streamer::init(const StreamerConfig &streamer_config)
 
     //---------audio codec---------------------------------------
     codec_id = AV_CODEC_ID_AAC;
-    AVCodec *out_codec_audio = avcodec_find_encoder(codec_id);
+    AVCodec *out_codec_audio = (AVCodec *)avcodec_find_encoder(codec_id);
     if (!(out_codec_audio)) {
         fprintf(stderr, "Could not find encoder for '%s'\n",
                 avcodec_get_name(codec_id));

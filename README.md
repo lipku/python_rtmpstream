@@ -17,10 +17,10 @@ $ conda install ffmpeg
 
 修改python/CMakeLists.txt文件,根据python和ffmpeg安装路径修改如下部分
 ```
-set(PYTHON_EXECUTABLE /opt/anaconda3/envs/python37/bin/python)
+set(PYTHON_EXECUTABLE /opt/anaconda3/envs/python37/bin/python)  #python bin dir
 
-include_directories("/opt/anaconda3/envs/python37/include")
-find_library(AVCODEC_LIBRARY avcodec /opt/anaconda3/envs/python37/lib)
+include_directories("/opt/anaconda3/envs/python37/include") #ffmpeg include dir
+find_library(AVCODEC_LIBRARY avcodec /opt/anaconda3/envs/python37/lib) #ffmpeg lib dir
 find_library(AVFORMAT_LIBRARY avformat /opt/anaconda3/envs/python37/lib)
 find_library(AVUTIL_LIBRARY avutil /opt/anaconda3/envs/python37/lib)
 find_library(SWSCALE_LIBRARY swscale /opt/anaconda3/envs/python37/lib)
