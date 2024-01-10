@@ -5,9 +5,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 namespace streamer
 {
+
+static int64_t timems()
+{
+    struct timeval tv;
+    
+    gettimeofday(&tv, NULL);
+    return (tv.tv_sec*1000 + tv.tv_usec/1000);
+}
 
 #define STREAM_PIX_FMT    AV_PIX_FMT_YUV420P
 static void log_packet(const AVFormatContext *fmt_ctx, const AVPacket *pkt)
@@ -69,11 +78,12 @@ static int set_options_and_open_encoder(AVFormatContext *fctx, AVStream *stream,
     codec_ctx->codec_type = AVMEDIA_TYPE_VIDEO;
     codec_ctx->width = width;
     codec_ctx->height = height;
-    codec_ctx->gop_size = 12;
+    codec_ctx->gop_size = 25;
     codec_ctx->pix_fmt = STREAM_PIX_FMT;
     codec_ctx->framerate = dst_fps;
     codec_ctx->time_base = av_inv_q(dst_fps);
     codec_ctx->bit_rate = bitrate;
+    codec_ctx->thread_count = 4;
     if (fctx->oformat->flags & AVFMT_GLOBALHEADER)
     {
         codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
@@ -153,6 +163,8 @@ Streamer::Streamer()
     //av_register_all();
     inv_stream_timebase = 30.0;
     fifo = NULL;
+    m_video_startms = 0;
+    m_audio_startms = 0;
     network_init_ok = !avformat_network_init();
 }
 
@@ -194,7 +206,15 @@ void Streamer::stream_frame(const uint8_t *data)
         const int stride[] = {static_cast<int>(config.src_width*3)};
         sws_scale(scaler.ctx, &data, stride, 0, config.src_height, picture.frame->data, picture.frame->linesize);
         int64_t duration = av_rescale_q(1, out_codec_ctx->time_base, out_stream->time_base);
-        picture.frame->pts += duration;
+        //picture.frame->pts += duration;
+        if(m_video_startms==0) {
+            picture.frame->pts=0;
+            m_video_startms=timems();
+        } else {
+            int64_t lastpts = picture.frame->pts;
+            picture.frame->pts = timems()-m_video_startms;
+            duration = picture.frame->pts - lastpts;
+        }
         encode_and_write_frame(out_codec_ctx, format_ctx,out_stream, picture.frame, duration);
     }
 }
@@ -223,7 +243,13 @@ void Streamer::stream_frame_audio(const uint8_t *data)
         if (av_audio_fifo_size(fifo) >= audioframe.frame->nb_samples) {
             av_audio_fifo_read(fifo, (void **)audioframe.frame->data, audioframe.frame->nb_samples);
             int64_t duration = av_rescale_q(audioframe.frame->nb_samples, out_codec_audio_ctx->time_base, out_stream_audio->time_base);
-            audioframe.frame->pts += duration;
+            //audioframe.frame->pts += duration;
+            if(m_audio_startms==0) {
+                audioframe.frame->pts=0;
+                m_audio_startms=timems();
+            } else {
+                audioframe.frame->pts = timems()-m_audio_startms;
+            }
             encode_and_write_frame(out_codec_audio_ctx, format_ctx, out_stream_audio, audioframe.frame, duration);
         }
     }

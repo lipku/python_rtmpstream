@@ -196,6 +196,7 @@ class Streamer
     Picture picture;
     AudioFrame audioframe;
     AVAudioFifo *fifo;
+    int64_t m_video_startms,m_audio_startms;
 
     void cleanup();
     bool can_stream()
