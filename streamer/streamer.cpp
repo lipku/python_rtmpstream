@@ -58,7 +58,7 @@ static int encode_and_write_frame(AVCodecContext *codec_ctx, AVFormatContext *fm
         //}
         pkt.stream_index = st->index;
         
-        log_packet(fmt_ctx, &pkt);
+        //log_packet(fmt_ctx, &pkt);
         av_interleaved_write_frame(fmt_ctx, &pkt);        
         av_packet_unref(&pkt);
     }
