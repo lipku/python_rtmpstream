@@ -15,7 +15,7 @@ $ conda install ffmpeg
 或者 apt install libavcodec-dev libavformat-dev libswscale-dev
 ```
 
-修改python/CMakeLists.txt文件,根据python和ffmpeg安装路径修改如下部分
+修改python/CMakeLists.txt文件, **根据python和ffmpeg安装路径修改如下部分(这一步一定要做，很多错误都是这里没改引起的)**
 ```
 set(PYTHON_EXECUTABLE /opt/anaconda3/envs/python37/bin/python)  #python bin dir
 
