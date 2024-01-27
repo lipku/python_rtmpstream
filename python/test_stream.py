@@ -3,6 +3,16 @@ import cv2
 import time
 from rtmp_streaming import StreamerConfig, Streamer
 
+import pyaudio
+from threading import Thread, Event
+from queue import Queue
+
+def _read_frame(stream,  queue, chunk):
+    while True:
+        frame = stream.read(chunk, exception_on_overflow=False)
+        frame = np.frombuffer(frame, dtype=np.int16).astype(np.float32) / 32767 # [chunk]
+        queue.put(frame)
+
 
 def main():
 
@@ -27,16 +37,27 @@ def main():
     streamer.enable_av_debug_log()
 
 
+    fps = 50
+    sample_rate=16000
+    chunk = sample_rate // fps # 320 samples per chunk (20ms * 16000 / 1000)
+    audio_instance = pyaudio.PyAudio()
+    input_stream = audio_instance.open(format=pyaudio.paInt16, channels=1, rate=sample_rate, input=True, output=False, frames_per_buffer=chunk)
+    queue = Queue()
+    process_read_frame = Thread(target=_read_frame, args=(input_stream, queue, chunk))
+    process_read_frame.start()
+        
     prev = time.time()
 
     show_cap = True
 
     while(True):
-
         ret, frame = cap.read()
         now = time.time()
         duration = now - prev
-        streamer.stream_frame_with_duration(frame, int(duration*1000))
+        streamer.stream_frame(frame)
+        while(not queue.empty()):
+            audio_frame = queue.get()
+            streamer.stream_frame_audio(audio_frame)
         prev = now
         if show_cap:
             cv2.imshow('frame', frame)
