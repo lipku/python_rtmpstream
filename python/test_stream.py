@@ -17,7 +17,9 @@ def _read_frame(stream,  queue, chunk):
 def main():
 
     cap = cv2.VideoCapture(0)
+    #cap.set(cv2.CAP_PROP_CONVERT_RGB,0)
     ret, frame = cap.read()
+    print(frame.shape)
 
     sc = StreamerConfig()
     sc.source_width = frame.shape[1]
@@ -29,7 +31,7 @@ def main():
     sc.stream_profile = 'main' #'high444' # 'main'
     sc.audio_channel = 1
     sc.sample_rate = 16000
-    sc.stream_server = 'rtmp://localhost/live/livestream'
+    sc.stream_server = 'rtmp://localhost/live/livestream'  #'test.mp4'
 
 
     streamer = Streamer()
@@ -54,7 +56,7 @@ def main():
         ret, frame = cap.read()
         now = time.time()
         duration = now - prev
-        streamer.stream_frame(frame)
+        streamer.stream_frame(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)) #frame.flatten()
         while(not queue.empty()):
             audio_frame = queue.get()
             streamer.stream_frame_audio(audio_frame)
