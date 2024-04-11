@@ -12,10 +12,11 @@ namespace streamer
 
 static int64_t timems()
 {
-    struct timeval tv;
-    
-    gettimeofday(&tv, NULL);
-    return (tv.tv_sec*1000 + tv.tv_usec/1000);
+    struct timespec now;
+
+    clock_gettime(CLOCK_BOOTTIME,&now);
+
+    return (now.tv_sec*1000 + now.tv_nsec/1000/1000);
 }
 
 #define STREAM_PIX_FMT    AV_PIX_FMT_YUV420P
