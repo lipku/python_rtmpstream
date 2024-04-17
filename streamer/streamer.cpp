@@ -4,12 +4,23 @@
 #include <cstdio>
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <unistd.h>
 #include <sys/time.h>
+#endif
 
 namespace streamer
 {
-
+#ifdef _WIN32
+static int64_t timems()
+{
+    LARGE_INTEGER t;
+    QueryPerformanceCounter(&t);
+    return (t.QuadPart/10000);
+}
+#else
 static int64_t timems()
 {
     struct timespec now;
@@ -18,6 +29,7 @@ static int64_t timems()
 
     return (now.tv_sec*1000 + now.tv_nsec/1000/1000);
 }
+#endif
 
 #define STREAM_PIX_FMT    AV_PIX_FMT_YUV420P
 static void log_packet(const AVFormatContext *fmt_ctx, const AVPacket *pkt)
@@ -127,7 +139,11 @@ static int set_options_and_open_encoder_audio(AVFormatContext *fctx, AVStream *s
     codec_ctx->channel_layout = av_get_default_channel_layout(channel);
     codec_ctx->bit_rate  = 64000;
     codec_ctx->sample_fmt = AV_SAMPLE_FMT_FLTP; //AV_SAMPLE_FMT_S16;
-    codec_ctx->time_base = (AVRational){ 1, samplerate };
+    #ifdef _WIN32
+        codec_ctx->time_base = { 1, samplerate };
+    #else
+        codec_ctx->time_base = (AVRational){ 1, samplerate };
+    #endif
     if (fctx->oformat->flags & AVFMT_GLOBALHEADER)
     {
         codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;

@@ -33,14 +33,23 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}  -std=c++14 -Wall -O0 -fno-o
 include_directories("../streamer")
 
 #find_package(Python 3.7 COMPONENTS Interpreter Development REQUIRED)
-
+if(WIN32)
+#windwos,use conda install conda-forge::ffmpeg
+set(PYTHON_EXECUTABLE D:\\anaconda3\\envs\\nerfstream\\python.exe)
+include_directories("D:\\anaconda3\\envs\\nerfstream\\include")
+include_directories("D:\\anaconda3\\pkgs\\ffmpeg-6.1.1-gpl_hb766fab_106\\Library\\include")
+set(AVCODEC_LIBRARY "D:\\anaconda3\\pkgs\\ffmpeg-6.1.1-gpl_hb766fab_106\\Library\\lib\\avcodec.lib")
+set(AVFORMAT_LIBRARY "D:\\anaconda3\\pkgs\\ffmpeg-6.1.1-gpl_hb766fab_106\\Library\\lib\\avformat.lib")
+set(AVUTIL_LIBRARY "D:\\anaconda3\\pkgs\\ffmpeg-6.1.1-gpl_hb766fab_106\\Library\\lib\\avutil.lib")
+set(SWSCALE_LIBRARY "D:\\anaconda3\\pkgs\\ffmpeg-6.1.1-gpl_hb766fab_106\\Library\\lib\\swscale.lib")
+else()
 set(PYTHON_EXECUTABLE /opt/anaconda3/envs/python37/bin/python)
-
 include_directories("/opt/anaconda3/envs/python37/include")
 find_library(AVCODEC_LIBRARY avcodec /opt/anaconda3/envs/python37/lib)
 find_library(AVFORMAT_LIBRARY avformat /opt/anaconda3/envs/python37/lib)
 find_library(AVUTIL_LIBRARY avutil /opt/anaconda3/envs/python37/lib)
 find_library(SWSCALE_LIBRARY swscale /opt/anaconda3/envs/python37/lib)
+endif()
 
 #add_library(rtmp_streaming SHARED
 #    rtmp_streaming.cpp ../streamer/streamer.cpp

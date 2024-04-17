@@ -16,6 +16,9 @@ extern "C" {
 #include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 //#include <libavutil/timestamp.h>
+#ifdef _WIN32
+#include <malloc.h>
+#endif
 }
 
 #include <string>
@@ -71,7 +74,14 @@ public:
         frame = av_frame_alloc();
 
         int sz =  av_image_get_buffer_size(pix_fmt, width, height, align_frame_buffer);
-        int ret = posix_memalign(reinterpret_cast<void**>(&data), align_frame_buffer, sz);
+        int ret = 0;
+        #ifdef _WIN32
+            data = static_cast<uint8_t *>(_aligned_malloc(sz,align_frame_buffer));
+            if(!data)
+                ret = -1;
+        #else
+            ret = posix_memalign(reinterpret_cast<void**>(&data), align_frame_buffer, sz);
+        #endif
 
         av_image_fill_arrays(frame->data, frame->linesize, data, pix_fmt, width, height, align_frame_buffer);
         frame->format = pix_fmt;
@@ -92,7 +102,11 @@ public:
     ~Picture()
     {
         if(data) {
-            free(data);
+            #ifdef _WIN32
+                _aligned_free(data);
+            #else
+                free(data);
+            #endif
             data = nullptr;
         }
 
