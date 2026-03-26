@@ -1,0 +1,7 @@
+setup.py
+rtmp_streaming.egg-info/PKG-INFO
+rtmp_streaming.egg-info/SOURCES.txt
+rtmp_streaming.egg-info/dependency_links.txt
+rtmp_streaming.egg-info/not-zip-safe
+rtmp_streaming.egg-info/requires.txt
+rtmp_streaming.egg-info/top_level.txt

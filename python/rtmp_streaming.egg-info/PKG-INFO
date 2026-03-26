@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: rtmp_streaming
+Version: 0.0.1
+Summary: rtmp streaming using double buffer
+Author: andrea nobile
+Author-email: 
+Requires-Python: >=3.6
+Provides-Extra: test
+Requires-Dist: pytest>=6.0; extra == "test"
